@@ -1,0 +1,11 @@
+{
+  "version": 3,
+  "builds": [
+    { "src": "public/index.html", "use": "@vercel/static" },
+    { "src": "api/redirector.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/public/index.html" },
+    { "src": "/api/redirector", "dest": "/api/redirector.js" }
+  ]
+}
